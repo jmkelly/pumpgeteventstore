@@ -51,7 +51,7 @@ namespace PumpGetEventStore
         {
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
-            connection.ConnectAsync().Wait();
+            await connection.ConnectAsync();
             var appendTask =  Task.WhenAll(
                 from location in Seed.Locations(howMany)
                 let eventData = JsonConvert.SerializeObject(location).AsJson()
