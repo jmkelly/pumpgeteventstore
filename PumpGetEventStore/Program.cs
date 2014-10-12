@@ -18,7 +18,21 @@ namespace PumpGetEventStore
     {
         static void Main(string[] args)
         {
-            const int numberOfLocations = 100000;
+            int numberOfLocations = 100000;
+            Console.WriteLine("How many locations do you wish to push");
+            string input = Console.ReadLine();
+            try
+            {
+                numberOfLocations = Convert.ToInt32(input);
+            }
+            catch (Exception)
+            {
+                //we will ignore, and log to console
+                Console.WriteLine("Invalid input, using default of {0}", numberOfLocations);
+            }
+
+            
+            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
             Console.WriteLine("Starting...");
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
