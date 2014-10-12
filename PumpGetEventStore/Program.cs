@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using EventStore.ClientAPI.Messages;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace PumpGetEventStore
@@ -17,17 +18,25 @@ namespace PumpGetEventStore
     {
         static void Main(string[] args)
         {
+            const int numberOfLocations = 100000;
+            Console.WriteLine("Starting...");
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
 
-            AppendLocations(connection).Wait();
+            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            AppendLocations(connection, numberOfLocations).Wait();
+            watch.Stop();
+            double tps = (double)numberOfLocations / watch.Elapsed.TotalSeconds;
+            Console.WriteLine("finished sending {0} locations, at rate of {1} tps", numberOfLocations, tps);
         }
 
-        static Task AppendLocations(IEventStoreConnection connection)
+        static Task AppendLocations(IEventStoreConnection connection, int howMany)
         {
 
             return Task.WhenAll(
-                from location in Seed.Locations(100000)
+                from location in Seed.Locations(howMany)
                 let eventData = JsonConvert.SerializeObject(location).AsJson()
                 select connection.AppendToStreamAsync("location", ExpectedVersion.Any, eventData));
         }
