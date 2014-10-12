@@ -36,7 +36,6 @@ namespace PumpGetEventStore
             Console.WriteLine("Starting...");
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
-            connection.ConnectAsync();
 
             Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
             Stopwatch watch = new Stopwatch();
@@ -47,13 +46,14 @@ namespace PumpGetEventStore
             Console.WriteLine("finished sending {0} locations, at rate of {1} tps", numberOfLocations, tps);
         }
 
-        static Task AppendLocations(IEventStoreConnection connection, int howMany)
+        static async Task AppendLocations(IEventStoreConnection connection, int howMany)
         {
-
-            return Task.WhenAll(
+            await connection.ConnectAsync();
+            var appendTask =  Task.WhenAll(
                 from location in Seed.Locations(howMany)
                 let eventData = JsonConvert.SerializeObject(location).AsJson()
                 select connection.AppendToStreamAsync("location", ExpectedVersion.Any, eventData));
+            await appendTask;
         }
     }
 
