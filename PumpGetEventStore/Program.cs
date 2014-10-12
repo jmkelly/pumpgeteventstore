@@ -36,6 +36,7 @@ namespace PumpGetEventStore
             Console.WriteLine("Starting...");
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
+            connection.ConnectAsync();
 
             Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
             Stopwatch watch = new Stopwatch();
