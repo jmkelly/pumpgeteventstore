@@ -30,9 +30,16 @@ namespace PumpGetEventStore
                 //we will ignore, and log to console
                 Console.WriteLine("Invalid input, using default of {0}", numberOfLocations);
             }
+
+            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
+            Console.WriteLine("Starting...");
+
+            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            DoIt(numberOfLocations);
+         
+            AppendLocations(numberOfLocations).Wait();
+
             watch.Stop();
             double tps = (double)numberOfLocations / watch.Elapsed.TotalSeconds;
             Console.WriteLine("finished sending {0} locations, at rate of {1} tps", numberOfLocations, tps);
@@ -40,24 +47,11 @@ namespace PumpGetEventStore
             
         }
 
-        public static async Task DoIt(int numberOfLocations)
+        public static async Task AppendLocations(int howMany)
         {
-            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
-            Console.WriteLine("Starting...");
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
-
-            Console.WriteLine("sending {0} locations to the event store", numberOfLocations);
-          
-         
-            await AppendLocations(connection, numberOfLocations);
-           
-
-        }
-
-        public static async Task AppendLocations(IEventStoreConnection connection, int howMany)
-        {
-            await connection.ConnectAsync();
+            connection.ConnectAsync().Wait();
             var appendTask =  Task.WhenAll(
                 from location in Seed.Locations(howMany)
                 let eventData = JsonConvert.SerializeObject(location).AsJson()
