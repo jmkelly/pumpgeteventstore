@@ -52,7 +52,9 @@ namespace PumpGetEventStore
         public static async Task AppendLocations(int howMany)
         {
             var settings = ConnectionSettings.Create()
-                .EnableVerboseLogging();
+                .EnableVerboseLogging()
+                .KeepReconnecting();
+
             var address = IPAddress.Parse("172.17.8.101");
             var connection = EventStoreConnection.Create(settings,new IPEndPoint(address, 1113));
             await connection.ConnectAsync();
