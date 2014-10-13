@@ -19,6 +19,8 @@ namespace PumpGetEventStore
         static void Main(string[] args)
         {
             int numberOfLocations = 100000;
+
+
             Console.WriteLine("How many locations do you wish to push");
             string input = Console.ReadLine();
             try
@@ -49,8 +51,10 @@ namespace PumpGetEventStore
 
         public static async Task AppendLocations(int howMany)
         {
+            var settings = ConnectionSettings.Create()
+                .EnableVerboseLogging();
             var address = IPAddress.Parse("172.17.8.101");
-            var connection = EventStoreConnection.Create(new IPEndPoint(address, 1113));
+            var connection = EventStoreConnection.Create(settings,new IPEndPoint(address, 1113));
             await connection.ConnectAsync();
             var appendTask =  Task.WhenAll(
                 from location in Seed.Locations(howMany)
